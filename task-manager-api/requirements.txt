@@ -1,0 +1,5 @@
+fastapi
+pydantic
+uvicorn==0.15.0
+mangum==0.10.0
+python-multipart
