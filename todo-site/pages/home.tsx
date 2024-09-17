@@ -1,4 +1,4 @@
-import type { NextPage } from "next";
+import { NextPage } from "next";
 import Head from "next/head";
 import React, { useEffect, useState } from "react";
 import Task from "../components/task";
@@ -27,13 +27,17 @@ const Home: NextPage = () => {
   const [newTaskContent, setNewTaskContent] = useState("");
 
   useEffect(() => {
-    if (sessionStorage.getItem('idToken')) {
-      const idToken = sessionStorage.getItem('idToken')!;
+    const idToken = sessionStorage.getItem('idToken');
+    
+    if (idToken) {
       const idTokenDecoded = parseJwt(idToken);
       const usernameFromToken = idTokenDecoded['preferred_username'];
       setUsername(usernameFromToken);
+    } else {
+      // Redirect to login if no idToken is found
+      router.push('/login');
     }
-  }, []);
+  }, [router]);
 
   const handleLogout = () => {
     sessionStorage.clear();
@@ -46,7 +50,6 @@ const Home: NextPage = () => {
   const getTasks = async () => {
     setIsLoading(true);
     try {
-      console.log('Username:', username);
       const response = await fetch(`${todoApiEndpoint}/list_tasks/${userId}`);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const responseData = await response.json();
@@ -63,8 +66,8 @@ const Home: NextPage = () => {
     if (username) {
       getTasks();
     }
-  }, [username]); // Ensure getTasks is called when username changes
-  
+  }, [username]);
+
   const putTask = async (task: Task) => {
     setTasks([task, ...tasks]);
     try {
@@ -76,9 +79,7 @@ const Home: NextPage = () => {
         body: JSON.stringify(task),
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const responseData = await response.json();
-      const taskId: string = responseData.task_id;
-      console.log(`Successfully put task: ${taskId}`);
+      await response.json();
       getTasks();
     } catch (error) {
       console.error('Failed to put task:', error);
@@ -94,7 +95,6 @@ const Home: NextPage = () => {
         method: "DELETE",
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      console.log('Task deleted:', taskId);
     } catch (error) {
       console.error('Failed to delete task:', error);
     }
@@ -110,8 +110,6 @@ const Home: NextPage = () => {
         body: JSON.stringify(updatedTask),
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const updatedTaskResponse = await response.json();
-      console.log("Task updated:", updatedTaskResponse);
     } catch (error) {
       console.error('Failed to update task:', error);
     }
@@ -128,57 +126,10 @@ const Home: NextPage = () => {
     await putTask(task);
   };
 
-  const taskInputField = (
-    <div className="flex mt-6">
-      <input
-        className="border border-gray-300 p-2 rounded-md grow mr-4"
-        type="text"
-        placeholder="Enter task here"
-        value={newTaskContent}
-        onChange={(e) => setNewTaskContent(e.target.value)}
-      />
-      <button
-        className="bg-blue-600 text-white w-24 p-2 rounded-md"
-        onClick={addNewTask}
-      >
-        Add
-      </button>
-    </div>
-  );
-
-  const taskList = (
-    <div>
-      {tasks.length > 0 ? (
-        tasks.map((task) => (
-          <TaskItem
-            key={task.task_id}
-            {...task}
-            onDelete={deleteTask}
-            onUpdate={updateTask}
-          />
-        ))
-      ) : (
-        <p>No tasks available</p>
-      )}
-    </div>
-  );
-
-  const loadingText = isLoading ? "Loading" : "Ready";
-  const loadingTextColor = isLoading ? "text-orange-500" : "text-green-500";
-  const loadingStatus = (
-    <div className={`${loadingTextColor} text-center mb-4 text-sm`}>
-      {loadingText}
-    </div>
-  );
-
-  const userIdElement = (
-    <div className="text-center text-gray-700">User ID: {userId}</div>
-  );
-
   return (
     <div>
       <Head>
-        <title>To-Do List App</title>
+        <title>Home - Taskify</title>
         <meta name="description" content="To-do list app" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -186,10 +137,39 @@ const Home: NextPage = () => {
       <main>
         <h1 className="text-2xl font-bold text-center">My Tasks</h1>
         <h1>Welcome, {username}!</h1>
-        {userIdElement}
-        {loadingStatus}
-        {taskList}
-        {taskInputField}
+        <div className="text-center text-gray-700">User ID: {userId}</div>
+        <div className={isLoading ? "text-orange-500 text-center mb-4 text-sm" : "text-green-500 text-center mb-4 text-sm"}>
+          {isLoading ? "Loading" : "Ready"}
+        </div>
+        <div>
+          {tasks.length > 0 ? (
+            tasks.map((task) => (
+              <TaskItem
+                key={task.task_id}
+                {...task}
+                onDelete={deleteTask}
+                onUpdate={updateTask}
+              />
+            ))
+          ) : (
+            <p>No tasks available</p>
+          )}
+        </div>
+        <div className="flex mt-6">
+          <input
+            className="border border-gray-300 p-2 rounded-md grow mr-4"
+            type="text"
+            placeholder="Enter task here"
+            value={newTaskContent}
+            onChange={(e) => setNewTaskContent(e.target.value)}
+          />
+          <button
+            className="bg-blue-600 text-white w-24 p-2 rounded-md"
+            onClick={addNewTask}
+          >
+            Add
+          </button>
+        </div>
       </main>
       <div>
         <button onClick={handleLogout}>Logout</button>

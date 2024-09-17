@@ -4,6 +4,8 @@
 import { useState } from 'react';
 import { signIn, signUp } from './authService';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
+
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -49,6 +51,9 @@ const LoginPage = () => {
 
   return (
     <div className="loginForm">
+      <Head>
+        <title>Login - Taskify</title>
+      </Head>
       <h1>Welcome</h1>
       <h4>{isSignUp ? 'Sign up to create an account' : 'Sign in to your account'}</h4>
       <form onSubmit={isSignUp ? handleSignUp : handleSignIn}>
