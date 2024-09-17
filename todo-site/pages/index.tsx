@@ -1,162 +1,24 @@
-import type { NextPage } from "next";
-import Head from "next/head";
-import React, { useEffect } from "react";
-import Task from "../components/task";
-import TaskItem from "../components/taskItem";
-import { v4 as uuidv4 } from "uuid";
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 
-const Home: NextPage = () => {
-  // TODO: Update this URL to your own API endpoint!
-  const todoApiEndpoint: string =
-    "https://tsgo2tt5n4hcvsbgmmzfvtxem40pdpmb.lambda-url.eu-west-3.on.aws";
+const IndexPage = () => {
+  const router = useRouter();
 
-  const userId: string = "pixegami";
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [tasks, setTasks] = React.useState<Task[]>([]);
-  const [newTaskContent, setNewTaskContent] = React.useState("");
-
-  const getTasks = async () => {
-    setIsLoading(true);
-    const response = await fetch(`${todoApiEndpoint}/list_tasks/${userId}`);
-    const responseData = await response.json();
-
-    // Convert raw JSON to tasks.
-    const tasks: Task[] = responseData.tasks;
-    console.log(tasks);
-    setTasks(tasks);
-    setIsLoading(false);
+  // Authentication check
+  const isAuthenticated = () => {
+    const accessToken = sessionStorage.getItem('accessToken');
+    return !!accessToken;
   };
 
-  // Get the existing to-do items.
   useEffect(() => {
-    getTasks();
+    if (isAuthenticated()) {
+      router.replace('/home'); // Redirect to home if authenticated
+    } else {
+      router.replace('/login'); // Redirect to login if not authenticated
+    }
   }, []);
 
-  const putTask = async (task: Task) => {
-    // Put a local copy of this task into the state first for immediate feedback.
-    setTasks([task, ...tasks]);
-
-    const response = await fetch(`${todoApiEndpoint}/tasks`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(task),
-    });
-    console.log(response);
-    const responseData = await response.json();
-    console.log("response" + responseData);
-    const taskId: string = responseData.task_id;
-    console.log(`Successfully put task: ${taskId}`);
-    getTasks();
-  };
-
-  const deleteTask = async (taskId?: string) => {
-    // Remove it from the local task list.
-    const newTasks = tasks.filter((task) => task.task_id !== taskId);
-    setTasks(newTasks);
-
-    // Delete task from table.
-    const response = await fetch(`${todoApiEndpoint}/tasks/${taskId}`, {
-      method: "DELETE",
-    });
-    console.log(response);
-  };
-
-  const updateTask = async (updatedTask: Task) => {
-    const response = await fetch(`${todoApiEndpoint}/tasks/${updatedTask.task_id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(updatedTask),
-    });
-  
-    if (!response.ok) {
-      console.error("Failed to update task:", response.statusText);
-    } else {
-      const updatedTaskResponse = await response.json();
-      console.log("Task updated:", updatedTaskResponse);
-    }
-  };
-  
-
-  const addNewTask = async () => {
-    const task: Task = {
-      task_id: `task_${uuidv4()}`, // New task with UUID4
-      user_id: userId,
-      description: newTaskContent,
-      completed: false,
-    };
-    setNewTaskContent("");
-    await putTask(task);
-  };
-
-  // Create the task input field.
-  const taskInputField = (
-    <div className="flex mt-6">
-      <input
-        className="border border-gray-300 p-2 rounded-md grow mr-4"
-        type="text"
-        placeholder="Enter task here"
-        value={newTaskContent}
-        onChange={(e) => setNewTaskContent(e.target.value)}
-      />
-      <button
-        className="bg-blue-600 text-white w-24 p-2 rounded-md"
-        onClick={addNewTask}
-      >
-        Add
-      </button>
-    </div>
-  );
-
-  // Create a list of the tasks.
-  const taskList = (
-    // Create task using index as key
-    <div>
-      {tasks.map((task) => (
-        <TaskItem
-          key={task.task_id}
-          {...task}
-          onDelete={deleteTask}
-          onUpdate={updateTask}
-        />
-      ))}
-    </div>
-  );
-
-  const loadingText: string = isLoading ? "Loading" : "Ready";
-  const loadingTextColor: string = isLoading
-    ? "text-orange-500"
-    : "text-green-500";
-  const loadingStatus = (
-    <div className={loadingTextColor + " text-center mb-4 text-sm"}>
-      {loadingText}
-    </div>
-  );
-
-  const userIdElement = (
-    <div className="text-center text-gray-700">User ID: {userId}</div>
-  );
-
-  return (
-    <div>
-      <Head>
-        <title>To-Do List App</title>
-        <meta name="description" content="To-do list app" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main>
-        <h1 className="text-2xl font-bold text-center">My Tasks</h1>
-        {userIdElement}
-        {loadingStatus}
-        {taskList}
-        {taskInputField}
-      </main>
-    </div>
-  );
+  return null; // No UI needed, we are just redirecting
 };
 
-export default Home;
+export default IndexPage;

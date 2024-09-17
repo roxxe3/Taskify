@@ -25,20 +25,28 @@ const TaskItem: React.FC<TaskItemInterface> = (props) => {
 
   // Create a task item with a check box.
   const taskItem = (
-    <div className="border border-gray-300 rounded-md p-3 mb-2 flex">
-      <input type="checkbox" checked={isDone} onChange={handleTaskUpdate} />
-      <div className={"ml-4 " + taskStyle}>{props.description}</div>
-      <div className="grow" />
+    <div className="border border-gray-300 rounded-md p-2 mb-2 flex items-center">
+      <input
+        type="checkbox"
+        checked={isDone}
+        onChange={handleTaskUpdate}
+        className="mr-4"
+      />
+      <div className={`flex-1 ${taskStyle} font-medium text-lg`}>
+        {props.description}
+      </div>
       <button
-        className="text-red-500 ml-4"
+        className="text-red-500 ml-4 font-medium hover:underline"
         onClick={() => {
           props.onDelete(props.task_id);
         }}
       >
-        delete
+        Delete
       </button>
     </div>
   );
+  
+ 
   return taskItem;
 };
 export default TaskItem;
