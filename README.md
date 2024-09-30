@@ -30,8 +30,7 @@ Taskify is a serverless to-do list application designed to help users manage tas
 - **Backend**: [AWS Lambda](https://aws.amazon.com/lambda/), [FastAPI](https://fastapi.tiangolo.com/)
 - **Database**: [DynamoDB](https://aws.amazon.com/dynamodb/)
 - **Authentication**: [AWS Cognito](https://aws.amazon.com/cognito/)
-- **API Management**: [AWS API Gateway](https://aws.amazon.com/api-gateway/)
-- **Deployment**: AWS CloudFormation, AWS S3, and AWS API Gateway
+- **Deployment**: AWS CloudFormation
 
 ---
 
