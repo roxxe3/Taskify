@@ -9,8 +9,6 @@ Taskify is a serverless to-do list application designed to help users manage tas
 - [Architecture Overview](#architecture-overview)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Challenges](#challenges)
-- [Future Improvements](#future-improvements)
 
 ---
 
