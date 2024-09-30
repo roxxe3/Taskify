@@ -30,6 +30,7 @@ Taskify is a serverless to-do list application designed to help users manage tas
 - **Backend**: [AWS Lambda](https://aws.amazon.com/lambda/), [FastAPI](https://fastapi.tiangolo.com/)
 - **Database**: [DynamoDB](https://aws.amazon.com/dynamodb/)
 - **Authentication**: [AWS Cognito](https://aws.amazon.com/cognito/)
+- **API Integration**: [Mangum](https://mangum.io/) for ASGI to AWS Lambda integration
 - **Deployment**: AWS CloudFormation
 
 ---
@@ -42,7 +43,7 @@ The Taskify application is built using a serverless architecture:
 2. **Backend**: AWS Lambda functions handle CRUD operations and interact with DynamoDB.
 3. **Database**: DynamoDB stores all task data in a scalable, NoSQL database.
 4. **Authentication**: AWS Cognito handles user authentication and security.
-5. **API Gateway**: AWS API Gateway manages the interaction between frontend and backend.
+5. **API Integration**: The Mangum library is used to integrate FastAPI with AWS Lambda.
 
 ---
 
